@@ -26,7 +26,8 @@ public class JwtService {
     private static final int KEY_LEN = 64;
 
     public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+        String subject = extractAllClaims(token).getSubject();
+        return subject;
     }
 
 //    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
@@ -56,7 +57,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && isTokenExpired(token));
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {
@@ -69,10 +70,11 @@ public class JwtService {
 
     private Claims extractAllClaims(String token){
         SecretKey secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
-        return Jwts.parser()
+        Claims body = parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
+        return body;
 
     }
 
