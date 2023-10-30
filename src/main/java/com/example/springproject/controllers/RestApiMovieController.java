@@ -25,11 +25,6 @@ public class RestApiMovieController {
         return movieService.getMovies(key, id);
     }
 
-//    @GetMapping("/api/movies/{item}")
-//    public Movie getMovies(@PathVariable Integer item) throws IOException {
-//        return movieService.getSpecificMovie(item);
-//    }
-
     @PostMapping("/api/{item}/save")
     public void saveMovies(@PathVariable Integer item) throws IOException {
         movieService.saveMovies(movieService.getMovies(key,item));
