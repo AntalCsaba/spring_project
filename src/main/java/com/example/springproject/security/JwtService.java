@@ -24,6 +24,7 @@ public class JwtService {
 
     private static final String SECRET_KEY = "mysecretkey";
     private static final int KEY_LEN = 64;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -37,14 +38,19 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims,
+    public String generateToken(Map<String, Object> claims,
                                 UserDetails userDetails){
-        return builder()
-                .setClaims(extraClaims)
+
+        Key secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
+
+
+        return Jwts
+                .builder()
+                .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 + 60 * 24))
-                .signWith(SignatureAlgorithm.HS512, secretAsKey())
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -62,23 +68,14 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token){
-        return parser()
-                .setSigningKey(secretAsKey())
-                .parseClaimsJws(token)
-                .getBody();
-    }
+        SecretKey secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
+        Jws<Claims> claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
 
-//    public Claims decode(String jwt) {
-//        SecretKey secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
-//
-//        Jws<Claims> claims = Jwts.parserBuilder()
-//                .verifyWith(secretKey)
-//                .decryptWith(secretKey)
-//                .build()
-//                .parseSignedClaims(jwt);
-//
-//        return claims.getPayload();
-//    }
+        return claims.getBody();
+    }
 
     public byte[] secretAsKey() {
         byte[] key = SECRET_KEY.getBytes();
