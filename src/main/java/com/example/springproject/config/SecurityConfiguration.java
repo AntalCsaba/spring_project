@@ -17,10 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationFilter;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-//    @Bean
-//    public JwtAuthenticationFilter authenticationFilter(){
-//        return new JwtAuthenticationFilter(jwtService);
-//    }
+    private static final String[] POST_WHITE_LIST = new String[]{"/auth/addUser", "/error"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -29,10 +26,8 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/addUser")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
+                        auth.requestMatchers(POST_WHITE_LIST).permitAll()
+                                .anyRequest().authenticated())
                 .build();
     }
 

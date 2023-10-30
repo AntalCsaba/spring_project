@@ -26,13 +26,13 @@ public class JwtService {
     private static final int KEY_LEN = 64;
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return extractAllClaims(token).getSubject();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
+//    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+//        final Claims claims = extractAllClaims(token);
+//        return claimsResolver.apply(claims);
+//    }
 
     public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(), userDetails);
@@ -49,7 +49,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 + 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000L))
                 .signWith(secretKey)
                 .compact();
     }
@@ -64,17 +64,16 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return extractAllClaims(token).getExpiration();
     }
 
     private Claims extractAllClaims(String token){
         SecretKey secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
-        Jws<Claims> claims = Jwts.parserBuilder()
+        return Jwts.parser()
                 .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token);
+                .parseClaimsJws(token)
+                .getBody();
 
-        return claims.getBody();
     }
 
     public byte[] secretAsKey() {
