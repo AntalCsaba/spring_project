@@ -5,7 +5,6 @@ import com.example.springproject.models.User;
 import com.example.springproject.repositories.UserRepository;
 import com.example.springproject.security.JwtService;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -23,6 +22,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
+
     private static String getHash(String password) throws NoSuchAlgorithmException, NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));

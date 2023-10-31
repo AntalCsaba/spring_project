@@ -1,11 +1,8 @@
 package com.example.springproject.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,32 +12,26 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-import static io.jsonwebtoken.Jwts.*;
+import static io.jsonwebtoken.Jwts.parser;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "mysecretkey";
+    @Value("${secret_key}")
+    private String secret;
     private static final int KEY_LEN = 64;
 
     public String extractUsername(String token) {
-        String subject = extractAllClaims(token).getSubject();
-        return subject;
+        return extractAllClaims(token).getSubject();
     }
 
-//    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
-//        final Claims claims = extractAllClaims(token);
-//        return claimsResolver.apply(claims);
-//    }
-
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(Map<String, Object> claims,
-                                UserDetails userDetails){
+                                UserDetails userDetails) {
 
         Key secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
 
@@ -55,7 +46,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails){
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
@@ -68,18 +59,17 @@ public class JwtService {
         return extractAllClaims(token).getExpiration();
     }
 
-    private Claims extractAllClaims(String token){
+    private Claims extractAllClaims(String token) {
         SecretKey secretKey = new SecretKeySpec(secretAsKey(), "HmacSHA512");
-        Claims body = parser()
+        return parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
-        return body;
 
     }
 
     public byte[] secretAsKey() {
-        byte[] key = SECRET_KEY.getBytes();
+        byte[] key = secret.getBytes();
         byte[] result = new byte[KEY_LEN];
         int p = 0;
         while (p < key.length) {

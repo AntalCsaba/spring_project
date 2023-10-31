@@ -1,6 +1,5 @@
 package com.example.springproject.controllers;
 
-import com.example.springproject.dtos.MoviesListDTO;
 import com.example.springproject.models.Movie;
 import com.example.springproject.services.MovieService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +26,7 @@ public class RestApiMovieController {
 
     @PostMapping("/api/{item}/save")
     public void saveMovies(@PathVariable Integer item) throws IOException {
-        movieService.saveMovies(movieService.getMovies(key,item));
+        movieService.saveMovies(movieService.getMovies(key, item));
     }
 
 }

@@ -1,7 +1,5 @@
 package com.example.springproject.dao;
 
-import lombok.*;
-
 public class AuthenticationResponse {
 
     public AuthenticationResponse() {
